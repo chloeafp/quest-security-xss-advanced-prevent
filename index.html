@@ -5,8 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+
     <title>XSS</title>
+
+
+    <!--  <meta http-equiv="Content-Security-Policy" content="script-src 'self'">  -->
 
     <link rel="stylesheet" type="text/css" href="vendors/bootstrap.min.css">
     <script type="text/javascript" src="vendors/purify.min.js"></script>
@@ -48,7 +51,8 @@
                 Anyway, I'm not looking for someone to share pies with... I need someone who can HTML-format my
                 speeches, like making my keywords <strong>bold</strong> and...&nbsp;hum, other modern machine stuff.
                 Could you do that?<br>
-                <strong>You:</strong> Sure!</p>
+                <strong>You:</strong> Sure!
+            </p>
 
             <div class="row">
 
@@ -89,14 +93,14 @@
 
         // XSS vulnerability #1
 
-        userParam = params.get("name");
+        userParam = encodeURIComponent(params.get("name"));
         userName = "applicant";
 
         if (userParam !== null) {
             userName = userParam;
         }
 
-        document.getElementById("welcome-text").innerHTML = "<h1>How do you do, " + userName + "?</h1>";
+        document.getElementById("welcome-text").textContent = "<h1>How do you do, " + userName + "?</h1>";
 
         //  XSS vulnerability #2
 
@@ -106,7 +110,7 @@
         input.addEventListener("input", updateValue);
 
         function updateValue(e) {
-            log.innerHTML = e.target.value;
+            log.textContent = e.target.value;
         }
 
         //  XSS vulnerability #3
@@ -118,16 +122,18 @@
         showButton.addEventListener("click", showHTML);
 
         function showHTML() {
-            htmlOutput.innerHTML = htmlInput.value;
+            htmlOutput.textContent = htmlInput.value;
         }
 
         //  XSS vulnerability #4
 
         const redir = params.get("goto");
         if (redir !== null && redir !== "null") {
-            document.location = redir;
+            const validUrlPattern = /^https?:\/\/[^\s/$.?#].[^\s]*$/i;
+            if (validUrlPattern.test(redir)) {
+                document.location =redir.replace(/\(/g, "lol");
+            }
         }
-
     </script>
 
 </body>
